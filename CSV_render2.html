@@ -1,0 +1,71 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8">
+    <meta name="viewport" content="initial-scale=1, maximum-scale=1,user-scalable=no"/>
+    <title>CSVLayer sample</title>
+    <link rel="stylesheet" href="https://js.arcgis.com/3.23/esri/css/esri.css">
+    <style>
+      html, body, #map {
+        height: 100%;
+        width: 100%;
+        margin: 0;
+        padding: 0;
+      }
+      body {
+        background-color: #FFF;
+        overflow: hidden;
+        font-family: "Trebuchet MS";
+      }
+    </style>
+    <script src="https://js.arcgis.com/3.23/"></script>
+    <script>
+      var map, csv;
+
+      require([
+        "esri/map", 
+        "esri/layers/CSVLayer",
+        "esri/Color",
+        "esri/symbols/SimpleMarkerSymbol",
+        "esri/renderers/SimpleRenderer",
+        "esri/renderers/HeatmapRenderer",
+        "esri/InfoTemplate",
+        "esri/config",
+        "dojo/domReady!"
+      ], function(
+        Map, CSVLayer, Color, SimpleMarkerSymbol, SimpleRenderer, HeatmapRenderer,InfoTemplate, esriConfig
+      ) {
+        
+        // Use CORS
+        esriConfig.defaults.io.corsEnabledServers.push("earthquake.usgs.gov"); // supports CORS
+
+        // Use proxy if the server doesn't support CORS
+        // esriConfig.defaults.io.proxyUrl = "/proxy/";  
+        
+        map = new Map("map", {
+          basemap: "gray",
+          center: [ -60, -10 ],
+          zoom: 5, 
+        });
+        csv = new CSVLayer("all_month2.csv", {
+          copyright: "USGS.gov"
+        });
+        var heatmapRenderer = new HeatmapRenderer({
+            field:"depth",
+            colors: ["rgba(0,0,255,0)","rgb(0, 0, 255)","rgb(250,128,114)", "rgb(255,48,48)"],
+            blurRadius: 4,
+            maxPixelIntensity: 100,
+            minPixelIntensity: 0
+        });
+        csv.setRenderer(heatmapRenderer);
+        var template = new InfoTemplate("${type}", "${place}");
+        csv.setInfoTemplate(template);
+        map.addLayer(csv);
+      });
+    </script>
+  </head>
+
+  <body>
+    <div id="map"></div>
+  </body>
+</html>

@@ -1,0 +1,78 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8">
+    <meta name="viewport" content="initial-scale=1, maximum-scale=1,user-scalable=no"/>
+    <title>Layer sample</title>
+    <link rel="stylesheet" href="https://js.arcgis.com/3.23/esri/css/esri.css">
+    <style>
+      html, body, #map {
+        height: 100%;
+        width: 100%;
+        margin: 0;
+        padding: 0;
+      }
+      body {
+        background-color: #FFF;
+        overflow: hidden;
+        font-family: "Trebuchet MS";
+      }
+    </style>
+    <script src="https://js.arcgis.com/3.23/"></script>
+    <script>
+      var map, csv,renderer1,renderer2;
+
+      require([
+        "esri/map", 
+        "esri/layers/CSVLayer",
+        "esri/Color",
+        "esri/symbols/SimpleMarkerSymbol",
+        "esri/renderers/SimpleRenderer",
+        "esri/InfoTemplate",
+        "esri/config",
+        "esri/layers/KMLLayer", 
+        "esri/renderers/ClassBreaksRenderer",
+        "dojo/dom-style",
+        "dojo/domReady!"
+      ], function(
+        Map, CSVLayer, Color, SimpleMarkerSymbol, SimpleRenderer, InfoTemplate, esriConfig,KMLLayer, ClassBreaksRenderer,domStyle,
+      ) {
+        
+        // Use CORS
+        esriConfig.defaults.io.corsEnabledServers.push("earthquake.usgs.gov"); // supports CORS
+
+        // Use proxy if the server doesn't support CORS
+        // esriConfig.defaults.io.proxyUrl = "/proxy/";  
+        
+        map = new Map("map", {
+          basemap: "gray",
+          center: [160.30, 35.30],
+          zoom: 4, 
+        });
+        csv = new CSVLayer("all_month2.csv", {
+          copyright: "USGS.gov"
+        });
+        var symbol = new SimpleMarkerSymbol();
+        symbol.setColor(new Color([150, 150, 150, 0.4]));
+        renderer1 = new ClassBreaksRenderer(symbol, "depth");
+        renderer1.addBreak(-1, 25, new SimpleMarkerSymbol().setColor(new Color([255,220,220,0.4])));
+        renderer1.addBreak(25, 50, new SimpleMarkerSymbol().setColor(new Color([255,180,180,0.4])));
+        renderer1.addBreak(50, 100, new SimpleMarkerSymbol().setColor(new Color([255,140,140,0.4])));
+        renderer1.addBreak(100, Infinity, new SimpleMarkerSymbol().setColor(new Color([255,100,100,0.4])));
+        csv.setRenderer(renderer1);
+        var template = new InfoTemplate("${type}", "${place}");
+        csv.setInfoTemplate(template);
+        map.addLayer(csv); 
+      });
+        function csv_render2(){
+          window.open("CSV_render2.html");
+      }
+    </script>
+  </head>
+
+  <body>
+    <div id="map">
+        <button type="button" onclick="csv_render2()">CSV_render2</button>
+      </div>
+  </body>
+</html>
